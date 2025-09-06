@@ -14,8 +14,9 @@ export default ((opts?: Options) => {
     return (
       <footer class={`${displayClass ?? ""}`}>
         <p>
+          Created by Jamal Taiyara for the MBRU Digital Health Club © {year}<br />
           {i18n(cfg.locale).components.footer.createdWith}{" "}
-          <a href="https://quartz.jzhao.xyz/">Quartz v{version}</a> © {year}
+          <a href="https://quartz.jzhao.xyz/">Quartz v{version}</a>
         </p>
         <ul>
           {Object.entries(links).map(([text, link]) => (
