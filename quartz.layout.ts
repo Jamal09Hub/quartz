@@ -4,7 +4,16 @@ import * as Component from "./quartz/components"
 // components shared across all pages
 export const sharedPageComponents: SharedLayout = {
   head: Component.Head(),
-  header: [],
+  header: [
+    // Add your horizontal navigation to the header section
+    Component.HorizontalNavigation({
+      showActiveState: true,
+      items: [
+        { displayName: "Home", path: "/" },
+        { displayName: "About", path: "/About" }
+      ]
+    })
+  ],
   afterBody: [],
   footer: Component.Footer({
     links: {
