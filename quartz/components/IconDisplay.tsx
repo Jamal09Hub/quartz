@@ -1,150 +1,129 @@
 import { QuartzComponent, QuartzComponentConstructor, QuartzComponentProps } from "./types"
+import { pathToRoot } from "../util/path"
 import { classNames } from "../util/lang"
 
-interface IconDisplayOptions {
+interface LogoTitleOptions {
   /**
-   * Alt text for the icon (for accessibility)
+   * Path to your logo image
+   */
+  logoSrc?: string
+  /**
+   * Alt text for the logo (accessibility)
    */
   altText?: string
   /**
-   * Icon source path
+   * Height of the logo in pixels
    */
-  iconSrc?: string
+  logoHeight?: number
   /**
-   * Icon size (defaults to 300px)
+   * Width of the logo in pixels (optional - will auto-calculate if not provided)
    */
-  size?: number
+  logoWidth?: number
   /**
-   * Whether to show a border around the icon
+   * Whether the logo should link to home page
    */
-  showBorder?: boolean
-  /**
-   * Click handler URL (optional - makes icon clickable)
-   */
-  clickUrl?: string
+  linkToHome?: boolean
 }
 
-const defaultOptions: IconDisplayOptions = {
-  altText: "Site Icon",
-  iconSrc: "/static/dhclogotext.png", // REPLACE THIS WITH YOUR ICON PATH
-  size: 300,
-  showBorder: false,
-  clickUrl: undefined
+const defaultOptions: LogoTitleOptions = {
+  logoSrc: "/static/dhclogotext.png",             // REPLACE THIS with your logo path
+  altText: "Site Logo",
+  logoHeight: 40,                          // Default height in pixels
+  logoWidth: undefined,                    // Auto-calculate width to maintain aspect ratio
+  linkToHome: true
 }
 
-export default ((userOpts?: Partial<IconDisplayOptions>) => {
-  const opts: IconDisplayOptions = { ...defaultOptions, ...userOpts }
+export default ((userOpts?: Partial<LogoTitleOptions>) => {
+  const opts: LogoTitleOptions = { ...defaultOptions, ...userOpts }
   
-  const IconDisplay: QuartzComponent = ({ displayClass }: QuartzComponentProps) => {
-    const iconElement = (
-      <img 
-        src={opts.iconSrc}                    // PLACEHOLDER - Replace with your icon path
+  const LogoTitle: QuartzComponent = ({ 
+    fileData, 
+    cfg, 
+    displayClass 
+  }: QuartzComponentProps) => {
+    const baseDir = pathToRoot(fileData.slug!)
+    const logoPath = `${baseDir}${opts.logoSrc?.startsWith('/') ? opts.logoSrc.slice(1) : opts.logoSrc}`
+    
+    const logoElement = (
+      <img
+        src={logoPath}                       // PLACEHOLDER - replace with your logo
         alt={opts.altText}
-        className={classNames("site-icon", { "with-border": opts.showBorder })}
-        width={opts.size}
-        height={opts.size}
-        loading="lazy"                        // Optimize loading performance
+        className="site-logo"
+        style={{
+          height: `${opts.logoHeight}px`,
+          width: opts.logoWidth ? `${opts.logoWidth}px` : 'auto'
+        }}
+        loading="eager"                      // Load immediately since it's above the fold
       />
     )
     
     return (
-      <div className={classNames(displayClass, "icon-display-container")}>
-        {opts.clickUrl ? (
-          <a 
-            href={opts.clickUrl} 
-            className="icon-link"
-            target="_blank" 
-            rel="noopener noreferrer"
-          >
-            {iconElement}
+      <div className={classNames(displayClass, "logo-title-container")}>
+        {opts.linkToHome ? (
+          <a href={baseDir} className="logo-link">
+            {logoElement}
           </a>
         ) : (
-          iconElement
+          logoElement
         )}
       </div>
     )
   }
   
-  IconDisplay.css = `
-    /* Main container for the icon */
-    .icon-display-container {
-      display: flex;                         /* Flexbox for centering */
-      justify-content: flex-start;               /* Center horizontally */
-      align-items: flex-start;                   /* Center vertically */
-      padding: 0;                         /* Padding around the icon */
-      margin-bottom: 0;                   /* Space below the component */
-      height: auto;                       /* Auto height based on content */
-    }
-    .icon-display-container .site-icon {
-      width: 40px;                  /* Or your desired size */
-      height: 40px;
-      margin: 0;                    /* No icon margin */
-      display: block;
+  LogoTitle.css = `
+    /* Main container for the logo */
+    .logo-title-container {
+      display: flex;                         /* Flexbox for alignment */
+      align-items: center;                   /* Center vertically */
+      margin: 0;                             /* Remove default margins */
+      padding: 0.5rem 0;                     /* Small vertical padding */
     }
     
-    /* Icon styling */
-    .icon-display-container .site-icon {
-      width: 300px;                          /* Fixed width - 300px as requested */
-      height: 300px;                         /* Fixed height - 300px as requested */
-      object-fit: contain;                   /* Maintain aspect ratio, fit within bounds */
-      border-radius: 8px;                    /* Slightly rounded corners */
-      transition: transform 0.2s ease;       /* Smooth hover animation */
-      background-color: var(--light);        /* Background color for transparent images */
+    /* Logo link styling (if clickable) */
+    .logo-title-container .logo-link {
+      display: inline-flex;                  /* Inline flex for proper alignment */
+      align-items: center;                   /* Center the logo vertically */
+      text-decoration: none;                 /* Remove link underline */
+      transition: opacity 0.2s ease;         /* Smooth hover transition */
     }
     
-    /* Optional border styling */
-    .icon-display-container .site-icon.with-border {
-      border: 2px solid var(--gray);         /* Border color matches theme */
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* Subtle shadow */
+    .logo-title-container .logo-link:hover {
+      opacity: 0.8;                          /* Slightly fade on hover */
     }
     
-    /* Hover effect for clickable icons */
-    .icon-display-container .icon-link .site-icon {
-      cursor: pointer;                       /* Show pointer cursor */
+    /* Logo image styling */
+    .logo-title-container .site-logo {
+      display: block;                        /* Block display for proper sizing */
+      max-width: 100%;                       /* Responsive - don't exceed container */
+      height: auto;                          /* Maintain aspect ratio */
+      object-fit: contain;                   /* Fit within bounds while maintaining ratio */
     }
     
-    .icon-display-container .icon-link:hover .site-icon {
-      transform: scale(1.05);                /* Slightly enlarge on hover */
-      box-shadow: 0 4px 16px rgba(0,0,0,0.15); /* Enhanced shadow on hover */
-    }
-    
-    /* Responsive design for smaller screens */
-    @media (max-width: 1200px) {
-      .icon-display-container .site-icon {
-        width: 250px;                        /* Smaller on medium screens */
-        height: 250px;
-      }
-    }
-    
+    /* Responsive adjustments */
     @media (max-width: 800px) {
-      .icon-display-container .site-icon {
-        width: 200px;                        /* Even smaller on mobile */
-        height: 200px;
+      .logo-title-container {
+        padding: 0.25rem 0;                  /* Less padding on mobile */
       }
       
-      .icon-display-container {
-        padding: 0.5rem;                     /* Less padding on mobile */
+      .logo-title-container .site-logo {
+        max-height: 32px;                    /* Smaller logo on mobile */
       }
     }
     
     @media (max-width: 500px) {
-      .icon-display-container .site-icon {
-        width: 150px;                        /* Smallest size for very small screens */
-        height: 150px;
+      .logo-title-container .site-logo {
+        max-height: 28px;                    /* Even smaller on very small screens */
       }
     }
     
-    /* Dark mode adjustments */
-    @media (prefers-color-scheme: dark) {
-      .icon-display-container .site-icon {
-        background-color: var(--darkgray);   /* Darker background in dark mode */
-      }
-      
-      .icon-display-container .site-icon.with-border {
-        border-color: var(--lightgray);     /* Lighter border in dark mode */
+    /* High DPI display support */
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+      .logo-title-container .site-logo {
+        image-rendering: -webkit-optimize-contrast; /* Better rendering on retina */
+        image-rendering: crisp-edges;
       }
     }
   `
   
-  return IconDisplay
+  return LogoTitle
 }) satisfies QuartzComponentConstructor
