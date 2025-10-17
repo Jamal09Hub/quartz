@@ -69,10 +69,17 @@ export default ((userOpts?: Partial<IconDisplayOptions>) => {
     /* Main container for the icon */
     .icon-display-container {
       display: flex;                         /* Flexbox for centering */
-      justify-content: center;               /* Center horizontally */
-      align-items: center;                   /* Center vertically */
-      padding: 1rem;                         /* Padding around the icon */
-      margin-bottom: 1rem;                   /* Space below the component */
+      justify-content: flex-start;               /* Center horizontally */
+      align-items: flex-start;                   /* Center vertically */
+      padding: 0;                         /* Padding around the icon */
+      margin-bottom: 0;                   /* Space below the component */
+      height: auto;                       /* Auto height based on content */
+    }
+    .icon-display-container .site-icon {
+      width: 40px;                  /* Or your desired size */
+      height: 40px;
+      margin: 0;                    /* No icon margin */
+      display: block;
     }
     
     /* Icon styling */
